@@ -13,9 +13,12 @@ private:
 
 public:
     Spell(char); // can only create spells by specifying the element
+    Spell(const Spell&); // Copy constructor
 };
 
 int Spell::noSpells = 0;
+
+// Spell constructors //
 
 Spell::Spell(char chosen_element) :spell_ID(++noSpells) {
     switch(chosen_element) {
@@ -57,6 +60,62 @@ Spell::Spell(char chosen_element) :spell_ID(++noSpells) {
     }
 }
 
+Spell::Spell(const Spell& spell) :spell_ID(++noSpells){
+    this->spell_Name = strcpy(new char[strlen(spell.spell_Name) + 1], spell.spell_Name);
+}
+
+class Player {
+private:
+    char* name;
+    Spell spells[4];
+
+public:
+    // constructors
+    Player();
+
+    // setters
+    void setName(char*);
+
+    // methods
+
+    void chooseSpells();
+};
+
+// Player constructor //
+
+Player::Player() {
+    name = strcpy(new char[6], "Player");
+}
+
+
+// Player setters //
+
+void Player::setName(char* name) {
+    if (this->name != NULL)
+        delete[] this->name;
+    this->name = strcpy(new char[strlen(name) + 1], name);
+}
+
+// Player methods //
+void Player::chooseSpells() {
+    delete[] this->spells;
+
+    int nr_spells = 0;
+
+    while (nr_spells < 3) {
+        std::cout << "Spell #" << (nr_spells++) + 1 << "\n";
+        std::cout << "Choose an element (case sensitive): \n";
+        std::cout << "Fire[F]/Lightning[L]/Tornado[T]/Invisibility[I]/Earthquake[E]/Copy last spell[C]\n";
+
+        char elem;
+
+        std::cin >> elem;
+
+        Spell spell(elem);
+
+    }
+}
+
 
 int main() {
 
@@ -67,5 +126,58 @@ int main() {
     //
     // Spell test(elem);
 
-    
+    int option;
+    bool player_created = false;
+    while (true) {
+        std::cout << "-----------------------RPG-SpellMaker-----------------------\n\n";
+        std::cout << "1. Create player.\n";
+        std::cout << "2. Choose spells.\n";
+        std::cout << "3. Upgrade spells.\n";
+        std::cout << "4. See character specs.\n";
+        std::cout << "5. Start fight.\n";
+        std::cout << "0. Exit.\n";
+        std::cin >> option;
+
+        if (option == 0) break;
+
+        switch (option) {
+            case 1:
+                if (player_created == false) {
+                    Player player;
+
+                    std::cout << "Enter your name:\n";
+                    char* name;
+                    std::cin >> name;
+
+                    player.setName(name);
+
+                    player_created = true;
+                }else {
+                    std::cout << "You have already created your player.\n\n";
+                }
+                break;
+            case 2:
+                if (player_created == false) {
+                    std::cout << "You must create a player first.\n\n";
+                }else {
+                    int nr_spells = 0;
+                    while (nr_spells != 3) {
+                        std::cout << "You have " << 3 - nr_spells << " left to choose.\n";
+
+                        std::cout << "You can choose from the following (case sensitive):\n";
+                        std::cout << "Fire[F]/Earthquake[E]/Lightning[L]/Tornado[T]/Invisibility[I]\n";
+
+                        char elem;
+
+                        std::cin >> elem;
+
+
+
+                        nr_spells++;
+                    }
+                }
+                break;
+        }
+    }
+
 }
