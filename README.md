@@ -1,1 +1,2 @@
-# RPG-Spellmaker
+# RPG-Spellmaker # POO Project 1
+The project consists of a game that allows the user to create 3 spells out of 5 options (based on different elements), and fight a boss that has 15 attack instances chosen from a list of 5 possible attacks. The attacks correspond with the list of elements the player can choose from while creating spells. The goal of the game is to defeat the boss within 15 turns using the created spells.
