@@ -14,7 +14,7 @@ private:
 
 public:
     Spell(char); // can only create spells by specifying the element
-    Spell(const Spell&); // Copy constructor
+    Spell(const Spell&);
 };
 
 int Spell::noSpells = 0;
@@ -103,6 +103,17 @@ void Player::setName(char* name) {
 // Player methods //
 
 
+class Boss {
+private:
+    char* name;
+    double hp;
+    float defense;
+    char* attackList;
+    const int nrAttacks = 15;
+
+};
+
+
 
 int main() {
 
@@ -121,7 +132,8 @@ int main() {
         std::cout << "2. Choose spells.\n";
         std::cout << "3. Upgrade spells.\n";
         std::cout << "4. See character specs.\n";
-        std::cout << "5. Start fight.\n";
+        std::cout << "5. Choose boss's name.\n";
+        std::cout << "6. Start fight.\n";
         std::cout << "0. Exit.\n";
         std::cin >> option;
 
@@ -157,8 +169,6 @@ int main() {
                         char elem;
 
                         std::cin >> elem;
-
-
 
                         nr_spells++;
                     }
