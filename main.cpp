@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string.h>
 
 class Spell {
 private:
@@ -67,7 +68,10 @@ Spell::Spell(const Spell& spell) :spell_ID(++noSpells){
 class Player {
 private:
     char* name;
-    Spell spells[4];
+    double mana;
+    int intelligence; // stat that scales damage
+    Spell* spells;
+    const int max_Spells;
 
 public:
     // constructors
@@ -83,7 +87,7 @@ public:
 
 // Player constructor //
 
-Player::Player() {
+Player::Player() :max_Spells(3){
     name = strcpy(new char[6], "Player");
 }
 
@@ -97,24 +101,7 @@ void Player::setName(char* name) {
 }
 
 // Player methods //
-void Player::chooseSpells() {
-    delete[] this->spells;
 
-    int nr_spells = 0;
-
-    while (nr_spells < 3) {
-        std::cout << "Spell #" << (nr_spells++) + 1 << "\n";
-        std::cout << "Choose an element (case sensitive): \n";
-        std::cout << "Fire[F]/Lightning[L]/Tornado[T]/Invisibility[I]/Earthquake[E]/Copy last spell[C]\n";
-
-        char elem;
-
-        std::cin >> elem;
-
-        Spell spell(elem);
-
-    }
-}
 
 
 int main() {
