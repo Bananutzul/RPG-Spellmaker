@@ -115,6 +115,13 @@ private:
 
 
 
+class Game {
+    Player player;
+    Boss boss;
+    bool gameWon;
+};
+
+
 int main() {
 
     // char elem;
