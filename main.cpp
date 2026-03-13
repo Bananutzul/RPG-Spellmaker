@@ -1,6 +1,8 @@
 #include <iostream>
 #include <string.h>
 
+using namespace std;
+
 class Spell {
 private:
     static int noSpells;
@@ -117,34 +119,99 @@ private:
     char* name;
     double mana;
     int intelligence; // stat that scales damage
+    int focus; // stat that scales mana
     Spell* spells;
+    int upgrade_points;
     const int max_Spells;
 
 public:
     // constructors
     Player();
+    Player(const char*);
+    Player(const Player&);
+    Player& operator=(const Player&);
+    ~Player();
 
     // setters
-    void setName(char*);
+    void setName(const char*);
 
-    // methods
+    //getters
+    const char* getName() const;
 
-    void chooseSpells();
 };
 
-// Player constructor //
+// Player constructors //
 
 Player::Player() :max_Spells(3){
     name = strcpy(new char[6], "Player");
+    mana = 100;
+    intelligence = 10;
+    focus = 8;
+    upgrade_points = 15;
+    spells = new Spell[max_Spells];
+}
+
+Player::Player(const char* name) :max_Spells(3) {
+    this->name = strcpy(new char[strlen(name) + 1], name);
+    mana = 100;
+    intelligence = 10;
+    focus = 8;
+    upgrade_points = 15;
+    spells = new Spell[max_Spells];
+}
+
+Player::Player(const Player& player) :max_Spells(3){
+    name = strcpy(new char[strlen(player.name) + 1], player.name);
+    mana = 100;
+    intelligence = 10;
+    focus = 8;
+    upgrade_points = 15;
+
+    spells = new Spell[max_Spells];
+
+    for (int i = 0; i < max_Spells; i++) 
+        spells[i] = player.spells[i];
+}
+
+Player& Player::operator=(const Player& player) {
+    if (this == &player) 
+        return *this;
+
+    delete[] name;
+    name = strcpy(new char[strlen(player.name) + 1], player.name);
+
+    mana = player.mana;
+    intelligence = player.intelligence;
+    focus = player.focus;
+    upgrade_points = player.upgrade_points;
+
+    delete[] spells;
+    spells = new Spell[max_Spells];
+
+    for (int i = 0; i < max_Spells; i++) 
+        spells[i] = player.spells[i];
+
+    return *this;
+}
+
+Player::~Player() {
+    delete[] name;
+    delete[] spells;
 }
 
 
 // Player setters //
 
-void Player::setName(char* name) {
+void Player::setName(const char* name) {
     if (this->name != NULL)
         delete[] this->name;
     this->name = strcpy(new char[strlen(name) + 1], name);
+}
+
+// Player getters // 
+
+const char* Player::getName() const{
+    return name;
 }
 
 // Player methods //
@@ -171,8 +238,15 @@ class Game {
 
 int main() {
 
-    Spell a, b('F');
-    Spell c = b;
-    Spell d;
-    d = a;
+    char nume[10];
+
+    std::cout << "Intoduceti un nume: ";
+
+    std::cin >> nume;
+
+    std::cout << "Nume introdus\n";
+
+    Player player(nume);
+
+    std::cout << player.getName();
 }
