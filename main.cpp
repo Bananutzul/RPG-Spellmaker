@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string.h>
+#include <ctime>
 
 using namespace std;
 
@@ -219,14 +220,73 @@ const char* Player::getName() const{
 
 class Boss {
 private:
+    const int boss_ID;
     char* name;
     double hp;
     float defense;
     char* attackList;
-    const int nrAttacks = 15;
+    const int nrAttacks;
+
+public:
+
+    // Constructors
+
+    Boss();
+    Boss(const char*);
+    Boss(const Boss&);
+    Boss& operator=(const Boss&);
+    ~Boss();
 
 };
 
+// Boss constructors //
+
+Boss::Boss() :boss_ID(time(nullptr)), nrAttacks(5){
+    name = strcpy(new char[strlen("The Lich") + 1], "The Lich");
+    hp = 500;
+    defense = 0.5;
+
+    attackList = new char[nrAttacks + 1];
+    attackList[0] = '\0'; // initialize the attack list string with terminator, so it doesn't contain garbage
+}
+
+Boss::Boss(const char* name) :boss_ID(time(nullptr)), nrAttacks(5){
+    this->name = strcpy(new char[strlen(name) + 1], name);
+    hp = 500;
+    defense = 0.5;
+
+    attackList = new char[nrAttacks + 1];
+    attackList[0] = '\0';
+}
+
+Boss::Boss(const Boss& boss) :boss_ID(time(nullptr)), nrAttacks(5){
+    name = strcpy(new char[strlen(boss.name) + 1], boss.name);
+    hp = boss.hp;
+    defense = boss.defense;
+
+    attackList = strcpy(new char[nrAttacks + 1], boss.attackList);
+
+}
+
+Boss& Boss::operator=(const Boss& boss){
+    if (this == &boss)
+        return *this;
+
+    delete[] name;
+    name = strcpy(new char[strlen(boss.name) + 1], boss.name);
+    hp = boss.hp;
+    defense = boss.defense;
+
+    delete[] attackList;
+    attackList = strcpy(new char[nrAttacks + 1], boss.attackList);
+
+    return *this;
+}
+
+Boss::~Boss() {
+    delete[] name;
+    delete[] attackList;
+}
 
 
 class Game {
