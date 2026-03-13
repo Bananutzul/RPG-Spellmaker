@@ -9,19 +9,30 @@ private:
     int nr_hits;
     float damage;
     double mana_Cost;
-    char* special_effect;
-    bool can_crit = false;
+    bool can_crit;
 
 public:
-    Spell(char); // can only create spells by specifying the element
+    Spell();
+    Spell(char);
     Spell(const Spell&);
+    Spell& operator=(const Spell&);
+    ~Spell();
 };
 
 int Spell::noSpells = 0;
 
 // Spell constructors //
 
-Spell::Spell(char chosen_element) :spell_ID(++noSpells) {
+Spell::Spell() :spell_ID(++noSpells) { // Init constructor
+    spell_Name = strcpy(new char[12], "Placeholder");
+    nr_hits = 0;
+    damage = 0;
+    mana_Cost = 0;
+    can_crit = false;
+}
+
+
+Spell::Spell(char chosen_element) :spell_ID(++noSpells) { // Parameterized constructor
     switch(chosen_element) {
         case 'F':
             std::cout << "Fire\n";
@@ -29,6 +40,7 @@ Spell::Spell(char chosen_element) :spell_ID(++noSpells) {
             damage = 20;
             nr_hits = 1;
             mana_Cost = 10;
+            can_crit = false;
             break;
         case 'E':
             std::cout << "Earthquake\n";
@@ -36,12 +48,14 @@ Spell::Spell(char chosen_element) :spell_ID(++noSpells) {
             damage = 9.5;
             nr_hits = 5;
             mana_Cost = 15;
+            can_crit = false;
             break;
         case 'L':
             std::cout << "Lightning\n";
             this->spell_Name = strcpy(new char[10], "Lightning");
             damage = 35;
             mana_Cost = 30;
+            nr_hits = 1;
             can_crit = true;
             break;
         case 'T':
@@ -49,21 +63,54 @@ Spell::Spell(char chosen_element) :spell_ID(++noSpells) {
             this->spell_Name = strcpy(new char[8], "Tornado");
             damage = 10;
             mana_Cost = 5;
+            nr_hits = 2;
+            can_crit = false;
             break;
         case 'I':
             std::cout << "Invisibility\n";
             this->spell_Name = strcpy(new char[13], "Invisibility");
             damage = 0;
             mana_Cost = 20;
+            nr_hits = 0;
+            can_crit = false;
             break;
         default:
+            spell_Name = strcpy(new char[12], "Placeholder");
+            damage = 0;
+            nr_hits = 0;
+            mana_Cost = 0;
+            can_crit = false;
             std::cout << "Invalid element chosen.\n";
     }
 }
 
 Spell::Spell(const Spell& spell) :spell_ID(++noSpells){
     this->spell_Name = strcpy(new char[strlen(spell.spell_Name) + 1], spell.spell_Name);
+    this->nr_hits = spell.nr_hits;
+    this->damage = spell.damage;
+    this->mana_Cost = spell.mana_Cost;
+    this->can_crit = spell.can_crit;
 }
+
+Spell& Spell::operator=(const Spell& spell) {
+    if (this == &spell)
+        return *this;
+
+    delete[] spell_Name;
+    spell_Name = strcpy(new char[strlen(spell.spell_Name) + 1], spell.spell_Name);
+
+    nr_hits = spell.nr_hits;
+    damage = spell.damage;
+    mana_Cost = spell.mana_Cost;
+    can_crit = spell.can_crit;
+
+    return *this;
+}
+
+Spell::~Spell() {
+    delete[] spell_Name;
+}
+
 
 class Player {
 private:
@@ -124,64 +171,8 @@ class Game {
 
 int main() {
 
-    // char elem;
-    //
-    // std::cout << "Choose spell: ";
-    // std::cin >> elem;
-    //
-    // Spell test(elem);
-
-    int option;
-    bool player_created = false;
-    while (true) {
-        std::cout << "-----------------------RPG-SpellMaker-----------------------\n\n";
-        std::cout << "1. Create player.\n";
-        std::cout << "2. Choose spells.\n";
-        std::cout << "3. Upgrade spells.\n";
-        std::cout << "4. See character specs.\n";
-        std::cout << "5. Choose boss's name.\n";
-        std::cout << "6. Start fight.\n";
-        std::cout << "0. Exit.\n";
-        std::cin >> option;
-
-        if (option == 0) break;
-
-        switch (option) {
-            case 1:
-                if (player_created == false) {
-                    Player player;
-
-                    std::cout << "Enter your name:\n";
-                    char* name;
-                    std::cin >> name;
-
-                    player.setName(name);
-
-                    player_created = true;
-                }else {
-                    std::cout << "You have already created your player.\n\n";
-                }
-                break;
-            case 2:
-                if (player_created == false) {
-                    std::cout << "You must create a player first.\n\n";
-                }else {
-                    int nr_spells = 0;
-                    while (nr_spells != 3) {
-                        std::cout << "You have " << 3 - nr_spells << " left to choose.\n";
-
-                        std::cout << "You can choose from the following (case sensitive):\n";
-                        std::cout << "Fire[F]/Earthquake[E]/Lightning[L]/Tornado[T]/Invisibility[I]\n";
-
-                        char elem;
-
-                        std::cin >> elem;
-
-                        nr_spells++;
-                    }
-                }
-                break;
-        }
-    }
-
+    Spell a, b('F');
+    Spell c = b;
+    Spell d;
+    d = a;
 }
