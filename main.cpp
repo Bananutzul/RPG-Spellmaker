@@ -166,6 +166,7 @@ public:
 
     // methods
     void chooseSpells();
+    void upgradeStats();
 };
 
 // Player constructors //
@@ -341,6 +342,94 @@ void Player::chooseSpells()
             {
                 clearScreen();
                 std::cout << "Invalid spell chosen.\n";
+                break;
+            }
+            }
+        }
+    }
+}
+
+void Player::upgradeStats()
+{
+
+    if (upgrade_points == 0)
+        std::cout << "\nYou have already allocated all of your points.\n";
+    else
+    {
+
+        int running = true;
+
+        while (running)
+        {
+            if (upgrade_points == 0) {
+                clearScreen();
+                std::cout << "\nYou have allocated all of your points.\n";
+                break;
+            }   
+            char option;
+            
+            clearScreen();
+
+            std::cout << "\nYou currently have " << upgrade_points << " points left.\n";
+            std::cout << "Choose which stat you would like to upgrade: Intelligence[I]/Focus[F]/Quit[Q]\n";
+            std::cout << "Intelligence: increases spell damage.\n"
+                      << "Focus: decreases mana cost of spells.\n";
+
+            std::cin >> option;
+
+            switch (option)
+            {
+            case 'Q':
+            {
+                clearScreen();
+                running = false;
+                break;
+            }
+            case 'I':
+            {
+                clearScreen();
+                std::cout << "\nChoose how many points you want to allocate: ";
+
+                int points;
+
+                std::cin >> points;
+
+                std::cout << "\n";
+
+                if (points >= upgrade_points)
+                    std::cout << "You don't have enough points left.\n";
+                else
+                {
+                    intelligence += points;
+                    upgrade_points -= points;
+                }
+
+                break;
+            }
+            case 'F':
+            {
+                clearScreen();
+                std::cout << "\nChoose how many points you want to allocate: ";
+
+                int points;
+
+                std::cin >> points;
+
+                std::cout << "\n";
+
+                if (points > upgrade_points)
+                    std::cout << "You don't have enough points left.\n";
+                else
+                {
+                    focus += points;
+                    upgrade_points -= points;
+                }
+
+                break;
+            }
+            default:
+            {
+                std::cout << "Invalid option.\n";
                 break;
             }
             }
@@ -528,10 +617,9 @@ void Game::setup_Menu()
 
     bool running = true;
 
-    std::cout << "----------Setup Menu----------\n";
-
     while (running)
     {
+        std::cout << "----------Setup Menu----------\n";
         std::cout << "\n1. Choose name.\n";
         std::cout << "2. Allocate upgrade points.\n";
         std::cout << "3. Choose spells.\n";
@@ -558,7 +646,7 @@ void Game::setup_Menu()
         case 2:
         {
             clearScreen();
-            std::cout << "Test\n";
+            player.upgradeStats();
             break;
         }
         case 3:
@@ -607,7 +695,9 @@ void Game::run()
 
     while (running)
     {
-        std::cout << "\n1. Setup menu.\n";
+
+        std::cout << "\n----------Main Menu----------\n";
+        std::cout << "1. Setup menu.\n";
         std::cout << "2. See created player.\n";
         std::cout << "3. Start fight.\n";
         std::cout << "0. Exit.\n";
