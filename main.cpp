@@ -40,7 +40,7 @@ public:
 
     // operators
     friend std::ostream& operator<<(std::ostream&, const Spell&);
-    friend std::istream& operator>>(std::istream&, const Spell&);
+    friend std::istream& operator>>(std::istream&, Spell&);
 };
 
 int Spell::noSpells = 0;
