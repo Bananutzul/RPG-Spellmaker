@@ -555,8 +555,16 @@ public:
     ~Boss();
 
     // Setters
-
     void setName(const char *);
+
+    // Getters
+    const char* getName() const;
+    const int getHP() const;
+    const float getDefense() const;
+
+    // Operators
+    friend std::ostream& operator<<(std::ostream&, const Boss& boss);
+    friend std::istream& operator>>(std::istream&, Boss& boss);
 };
 
 // Boss constructors //
@@ -621,6 +629,43 @@ void Boss::setName(const char *name)
 
     this->name = strcpy(new char[strlen(name) + 1], name);
 }
+
+// Boss getters //
+
+const char* Boss::getName() const {
+    return name;
+}
+
+const int Boss::getHP() const {
+    return hp;
+}
+
+const float Boss::getDefense() const {
+    return defense;
+}
+
+// Boss operators //
+
+std::ostream& operator<<(std::ostream& os, const Boss& boss) {
+    os << "Boss name: " << boss.getName() << ".\n";
+    os << "Boss HP: " << boss.getHP() << ".\n";
+    os << "Boss defense: " << boss.getDefense() * 100 << "%.\n";
+
+    return os;
+}
+
+std::istream& operator>>(std::istream& is, Boss& boss) {
+    std::cout << "Input Boss name: ";
+
+    char name[50];
+    std::cin.ignore();
+    std::cin.getline(name, 50);
+
+    boss.setName(name);
+
+    return is;
+}
+
 
 class Game
 {
@@ -721,15 +766,7 @@ void Game::setup_Menu()
         case 4:
         {
             clearScreen();
-
-            std::cout << "Choose boss name: ";
-
-            char boss_name[50];
-
-            std::cin.ignore();
-            std::cin.getline(boss_name, 50);
-            boss.setName(boss_name);
-
+            std::cin >> boss;
             break;
         }
         case 0:
@@ -791,7 +828,7 @@ void Game::run()
         }
         case 3: {
             clearScreen();
-            std::cout << "test\n";
+            std::cout << boss;
             break;
         }
         case 4:
