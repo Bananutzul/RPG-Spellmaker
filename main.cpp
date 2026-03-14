@@ -2,6 +2,7 @@
 #include <string.h>
 #include <ctime>
 #include <cstdlib>
+#include <cstring>
 
 void clearScreen()
 {
@@ -25,6 +26,7 @@ private:
     float damage;
     double mana_Cost;
     bool can_crit;
+    bool has_been_chosen;
 
 public:
     // constructors
@@ -39,12 +41,11 @@ public:
     // Spell readSpell();
 
     // getters
-
-    const char* getName() const;
+    const char *getName() const;
 
     // operators
-    friend std::ostream& operator<<(std::ostream&, const Spell&);
-    friend std::istream& operator>>(std::istream&, Spell&);
+    friend std::ostream &operator<<(std::ostream &, const Spell &);
+    friend std::istream &operator>>(std::istream &, Spell &);
 };
 
 int Spell::noSpells = 0;
@@ -57,6 +58,7 @@ Spell::Spell() : spell_ID(++noSpells)
     nr_hits = 0;
     damage = 0;
     mana_Cost = 0;
+    has_been_chosen = false;
     can_crit = false;
 }
 
@@ -71,6 +73,7 @@ Spell::Spell(char chosen_element) : spell_ID(++noSpells)
         nr_hits = 1;
         mana_Cost = 10;
         can_crit = false;
+        has_been_chosen = false;
         break;
     case 'E':
         std::cout << "Earthquake\n";
@@ -78,6 +81,7 @@ Spell::Spell(char chosen_element) : spell_ID(++noSpells)
         damage = 9.5;
         nr_hits = 5;
         mana_Cost = 15;
+        has_been_chosen = false;
         can_crit = false;
         break;
     case 'L':
@@ -86,6 +90,7 @@ Spell::Spell(char chosen_element) : spell_ID(++noSpells)
         damage = 35;
         mana_Cost = 30;
         nr_hits = 1;
+        has_been_chosen = false;
         can_crit = true;
         break;
     case 'T':
@@ -94,6 +99,7 @@ Spell::Spell(char chosen_element) : spell_ID(++noSpells)
         damage = 10;
         mana_Cost = 5;
         nr_hits = 2;
+        has_been_chosen = false;
         can_crit = false;
         break;
     case 'I':
@@ -102,6 +108,7 @@ Spell::Spell(char chosen_element) : spell_ID(++noSpells)
         damage = 0;
         mana_Cost = 20;
         nr_hits = 0;
+        has_been_chosen = false;
         can_crit = false;
         break;
     default:
@@ -109,6 +116,7 @@ Spell::Spell(char chosen_element) : spell_ID(++noSpells)
         damage = 0;
         nr_hits = 0;
         mana_Cost = 0;
+        has_been_chosen = false;
         can_crit = false;
         std::cout << "Invalid element chosen.\n";
     }
@@ -121,6 +129,7 @@ Spell::Spell(const Spell &spell) : spell_ID(++noSpells)
     this->damage = spell.damage;
     this->mana_Cost = spell.mana_Cost;
     this->can_crit = spell.can_crit;
+    has_been_chosen = spell.has_been_chosen;
 }
 
 Spell &Spell::operator=(const Spell &spell)
@@ -135,6 +144,7 @@ Spell &Spell::operator=(const Spell &spell)
     damage = spell.damage;
     mana_Cost = spell.mana_Cost;
     can_crit = spell.can_crit;
+    has_been_chosen = spell.has_been_chosen;
 
     return *this;
 }
@@ -144,9 +154,10 @@ Spell::~Spell()
     delete[] spell_Name;
 }
 
-// Spell getters // 
+// Spell getters //
 
-const char* Spell::getName() const {
+const char *Spell::getName() const
+{
     return spell_Name;
 }
 
@@ -160,7 +171,8 @@ const char* Spell::getName() const {
 
 // Spell operators
 
-std::ostream& operator<<(std::ostream& os, const Spell& spell) {
+std::ostream &operator<<(std::ostream &os, const Spell &spell)
+{
     os << "Element: " << spell.spell_Name << "\n";
     os << "Damage: " << spell.damage << "\n";
     os << "Mana cost: " << spell.mana_Cost << "\n";
@@ -169,7 +181,8 @@ std::ostream& operator<<(std::ostream& os, const Spell& spell) {
     return os;
 }
 
-std::istream& operator>>(std::istream& is, Spell& spell) {
+std::istream &operator>>(std::istream &is, Spell &spell)
+{
     char elem;
 
     is >> elem;
@@ -207,17 +220,18 @@ public:
     const char *getName() const;
     const int getIntelligence() const;
     const int getFocus() const;
-    const Spell getSpells(const int&) const;
+    const Spell getSpells(const int &) const;
     const int getHP() const;
     const int getMana() const;
+    const int getNrSpells() const;
 
     // methods
     void chooseSpells();
     void upgradeStats();
 
     // operators
-    friend std::ostream& operator<<(std::ostream&, const Player&);
-    friend std::istream& operator>>(std::istream&, Player&);
+    friend std::ostream &operator<<(std::ostream &, const Player &);
+    friend std::istream &operator>>(std::istream &, Player &);
 };
 
 // Player constructors //
@@ -313,7 +327,7 @@ const int Player::getIntelligence() const
     return intelligence;
 }
 
-const int Player::getFocus() const 
+const int Player::getFocus() const
 {
     return focus;
 }
@@ -328,7 +342,12 @@ const int Player::getMana() const
     return mana;
 }
 
-const Spell Player::getSpells(const int& idx) const
+const int Player::getNrSpells() const
+{
+    return nrSpells;
+}
+
+const Spell Player::getSpells(const int &idx) const
 {
     return spells[idx];
 }
@@ -344,6 +363,8 @@ void Player::chooseSpells()
     {
 
         bool quit = false;
+
+        char crt_spellList[4] = "NNN";
 
         while (nrSpells < max_Spells)
         {
@@ -364,46 +385,76 @@ void Player::chooseSpells()
             case 'F':
             {
                 clearScreen();
-                std::cout << "Fire chosen.\n";
-                Spell newspell('F');
-                this->spells[nrSpells] = newspell;
-                nrSpells++;
+                if (std::strchr(crt_spellList, 'F') == nullptr)
+                {
+                    std::cout << "Fire chosen.\n";
+                    Spell newspell('F');
+                    this->spells[nrSpells] = newspell;
+                    crt_spellList[nrSpells] = 'F';
+                    nrSpells++;
+                }
+                else
+                    std::cout << "You have already chosen this spell!\n";
                 break;
             }
             case 'E':
             {
                 clearScreen();
-                std::cout << "Earthquake chosen.\n";
-                Spell newspell('E');
-                this->spells[nrSpells] = newspell;
-                nrSpells++;
+                if (std::strchr(crt_spellList, 'E') == nullptr)
+                {
+                    std::cout << "Earthquake chosen.\n";
+                    Spell newspell('E');
+                    this->spells[nrSpells] = newspell;
+                    crt_spellList[nrSpells] = 'E';
+                    nrSpells++;
+                }
+                else
+                    std::cout << "You have already chosen this spell!\n";
                 break;
             }
             case 'L':
             {
                 clearScreen();
-                std::cout << "Lightning chosen.\n";
-                Spell newspell('L');
-                this->spells[nrSpells] = newspell;
-                nrSpells++;
+                if (std::strchr(crt_spellList, 'L') == nullptr)
+                {
+                    std::cout << "Lightning chosen.\n";
+                    Spell newspell('L');
+                    this->spells[nrSpells] = newspell;
+                    crt_spellList[nrSpells] = 'L';
+                    nrSpells++;
+                }
+                else
+                    std::cout << "You have already chosen this spell!\n";
                 break;
             }
             case 'T':
             {
                 clearScreen();
-                std::cout << "Tornado chosen.\n";
-                Spell newspell('T');
-                this->spells[nrSpells] = newspell;
-                nrSpells++;
+                if (std::strchr(crt_spellList, 'T') == nullptr)
+                {
+                    std::cout << "Tornado chosen.\n";
+                    Spell newspell('T');
+                    this->spells[nrSpells] = newspell;
+                    crt_spellList[nrSpells] = 'T';
+                    nrSpells++;
+                }
+                else
+                    std::cout << "You have already chosen this spell!\n";
                 break;
             }
             case 'I':
             {
                 clearScreen();
-                std::cout << "Invisibility chosen.\n";
-                Spell newspell('I');
-                this->spells[nrSpells] = newspell;
-                nrSpells++;
+                if (std::strchr(crt_spellList, 'I') == nullptr)
+                {
+                    std::cout << "Invisibility chosen.\n";
+                    Spell newspell('I');
+                    this->spells[nrSpells] = newspell;
+                    crt_spellList[nrSpells] = 'I';
+                    nrSpells++;
+                }
+                else
+                    std::cout << "You have already chosen this spell!\n";
                 break;
             }
             case 'Q':
@@ -436,13 +487,14 @@ void Player::upgradeStats()
 
         while (running)
         {
-            if (upgrade_points == 0) {
+            if (upgrade_points == 0)
+            {
                 clearScreen();
                 std::cout << "\nYou have allocated all of your points.\n";
                 break;
-            }   
+            }
             char option;
-            
+
             clearScreen();
 
             std::cout << "\nYou currently have " << upgrade_points << " points left.\n";
@@ -514,13 +566,15 @@ void Player::upgradeStats()
 
 // Player operators //
 
-std::ostream& operator<<(std::ostream& os, const Player& player) {
+std::ostream &operator<<(std::ostream &os, const Player &player)
+{
     os << "Player name: " << player.getName() << ".\n";
     os << "Intelligence: " << player.getIntelligence() << ".\n";
     os << "Focus: " << player.getFocus() << ".\n";
     os << "Spells chosen: " << player.nrSpells << "\n\n";
 
-    for (int i = 0; i < player.nrSpells; i++) {
+    for (int i = 0; i < player.nrSpells; i++)
+    {
         os << "Spell #" << i + 1 << "\n";
         os << player.spells[i] << "\n";
     }
@@ -528,9 +582,10 @@ std::ostream& operator<<(std::ostream& os, const Player& player) {
     return os;
 }
 
-std::istream& operator>>(std::istream& is, Player& player) {
+std::istream &operator>>(std::istream &is, Player &player)
+{
     std::cout << "Choose your name: ";
-    
+
     char name[50];
     is.ignore();
     is.getline(name, 50);
@@ -592,14 +647,14 @@ public:
     void setName(const char *);
 
     // Getters
-    const char* getName() const;
+    const char *getName() const;
     const int getHP() const;
     const float getDefense() const;
-    const char getAttack(const int&) const;
+    const char getAttack(const int &) const;
 
     // Operators
-    friend std::ostream& operator<<(std::ostream&, const Boss& boss);
-    friend std::istream& operator>>(std::istream&, Boss& boss);
+    friend std::ostream &operator<<(std::ostream &, const Boss &boss);
+    friend std::istream &operator>>(std::istream &, Boss &boss);
 };
 
 // Boss constructors //
@@ -609,7 +664,7 @@ Boss::Boss() : boss_ID(time(nullptr)), nrAttacks(10)
     name = strcpy(new char[strlen("The Lich") + 1], "The Lich");
     hp = 500;
     defense = 0.5;
-    possibleAttacks = strcpy(new char[6], "ICSWA"); // I - ice, C - Colossal Slash, S - Skulls, W - Water, A - Air 
+    possibleAttacks = strcpy(new char[6], "ICSWA"); // I - ice, C - Colossal Slash, S - Skulls, W - Water, A - Air
 
     attackList = new char[nrAttacks + 1];
     for (int i = 0; i < nrAttacks; i++)
@@ -621,7 +676,7 @@ Boss::Boss(const char *name) : boss_ID(time(nullptr)), nrAttacks(10)
     this->name = strcpy(new char[strlen(name) + 1], name);
     hp = 500;
     defense = 0.5;
-    possibleAttacks = strcpy(new char[6], "ICSWA"); // I - ice, C - Colossal Slash, S - Skulls, W - Water, A - Air 
+    possibleAttacks = strcpy(new char[6], "ICSWA"); // I - ice, C - Colossal Slash, S - Skulls, W - Water, A - Air
 
     attackList = new char[nrAttacks + 1];
     for (int i = 0; i < nrAttacks; i++)
@@ -633,7 +688,7 @@ Boss::Boss(const Boss &boss) : boss_ID(time(nullptr)), nrAttacks(10)
     name = strcpy(new char[strlen(boss.name) + 1], boss.name);
     hp = boss.hp;
     defense = boss.defense;
-    possibleAttacks = strcpy(new char[6], "ICSWA"); // I - ice, C - Colossal Slash, S - Skulls, W - Water, A - Air 
+    possibleAttacks = strcpy(new char[6], "ICSWA"); // I - ice, C - Colossal Slash, S - Skulls, W - Water, A - Air
 
     attackList = strcpy(new char[nrAttacks + 1], boss.attackList);
 }
@@ -651,7 +706,7 @@ Boss &Boss::operator=(const Boss &boss)
     if (possibleAttacks != NULL)
         delete[] possibleAttacks;
 
-    possibleAttacks = strcpy(new char[6], "ICSWA"); // I - ice, C - Collosal Slash, S - Skulls, W - Water, A - Air 
+    possibleAttacks = strcpy(new char[6], "ICSWA"); // I - ice, C - Collosal Slash, S - Skulls, W - Water, A - Air
 
     delete[] attackList;
     attackList = strcpy(new char[nrAttacks + 1], boss.attackList);
@@ -678,25 +733,30 @@ void Boss::setName(const char *name)
 
 // Boss getters //
 
-const char* Boss::getName() const {
+const char *Boss::getName() const
+{
     return name;
 }
 
-const int Boss::getHP() const {
+const int Boss::getHP() const
+{
     return hp;
 }
 
-const float Boss::getDefense() const {
+const float Boss::getDefense() const
+{
     return defense;
 }
 
-const char Boss::getAttack(const int& turn) const {
+const char Boss::getAttack(const int &turn) const
+{
     return attackList[turn];
 }
 
 // Boss operators //
 
-std::ostream& operator<<(std::ostream& os, const Boss& boss) {
+std::ostream &operator<<(std::ostream &os, const Boss &boss)
+{
     os << "Boss name: " << boss.getName() << ".\n";
     os << "Boss HP: " << boss.getHP() << ".\n";
     os << "Boss defense: " << boss.getDefense() * 100 << "%.\n";
@@ -704,7 +764,8 @@ std::ostream& operator<<(std::ostream& os, const Boss& boss) {
     return os;
 }
 
-std::istream& operator>>(std::istream& is, Boss& boss) {
+std::istream &operator>>(std::istream &is, Boss &boss)
+{
     std::cout << "Input Boss name: ";
 
     char name[50];
@@ -715,7 +776,6 @@ std::istream& operator>>(std::istream& is, Boss& boss) {
 
     return is;
 }
-
 
 class Game
 {
@@ -784,7 +844,7 @@ void Game::setup_Menu()
     bool running = true;
 
     while (running)
-    {   
+    {
         std::cout << "----------Setup Menu----------\n";
         std::cout << "\n1. Choose name.\n";
         std::cout << "2. Allocate upgrade points.\n";
@@ -836,11 +896,13 @@ void Game::setup_Menu()
     }
 }
 
-void Game::battle() {
-    while (turn_Number < 10) {
+void Game::battle()
+{
+    while (turn_Number < 10)
+    {
         clearScreen();
 
-        std::cout << "Turn # " << turn_Number + 1<< "\n";
+        std::cout << "Turn # " << turn_Number + 1 << "\n";
 
         std::cout << "Boss HP: " << boss.getHP() << "\n";
 
@@ -852,25 +914,26 @@ void Game::battle() {
 
         char attack = boss.getAttack(turn_Number);
 
-        switch (attack) {
-            case 'I':
-                std::cout << "Ice\n";
-                break;
-            case 'C':
-                std::cout << "Colossal Slash\n";
-                break;
-            case 'S':
-                std::cout << "Flying Skulls\n";
-                break;
-            case 'W':
-                std::cout << "Water Spiral\n";
-                break;
-            case 'A':
-                std::cout << "Crushing Wind\n";
-                break;
-            default:
-                std::cout << "Invalid attack\n";
-                break;
+        switch (attack)
+        {
+        case 'I':
+            std::cout << "Icy Spikes\n";
+            break;
+        case 'C':
+            std::cout << "Colossal Slash\n";
+            break;
+        case 'S':
+            std::cout << "Flying Skulls\n";
+            break;
+        case 'W':
+            std::cout << "Water Spiral\n";
+            break;
+        case 'A':
+            std::cout << "Crushing Wind\n";
+            break;
+        default:
+            std::cout << "Invalid attack\n";
+            break;
         }
 
         std::cout << "Choose your spell:\n";
@@ -889,11 +952,55 @@ void Game::battle() {
 
         char option;
 
-        std::cin >> option;
+        bool chosen = false;
+
+        while (!chosen)
+        {
+
+            std::cin >> option;
+            std::cin.ignore(1000, '\n');
+
+            switch (option)
+            {
+            case '1':
+            {
+                std::cout << "Spell 1 chosen\n";
+                chosen = true;
+                break;
+            }
+            case '2':
+            {
+                std::cout << "Spell 2 chosen\n";
+                chosen = true;
+                break;
+            }
+            case '3':
+            {
+                std::cout << "Spell 3 chosen\n";
+                chosen = true;
+                break;
+            }
+            default:
+            {
+                std::cout << "Invalid option.\n";
+                break;
+            }
+            }
+        }
+
+        std::cout << "Press anything to continue or [Q] to quit\n";
+
+        char buf;
+
+        std::cin >> buf;
+
+        if (buf == 'Q')
+            break;
+
+        std::cin.ignore(1000, '\n');
 
         turn_Number++;
     }
-
 }
 
 void Game::run()
@@ -937,7 +1044,8 @@ void Game::run()
             std::cout << player;
             break;
         }
-        case '3': {
+        case '3':
+        {
             clearScreen();
             std::cout << boss;
             break;
@@ -945,7 +1053,11 @@ void Game::run()
         case '4':
         {
             clearScreen();
-            battle();
+            if (player.getNrSpells() == 3)
+                battle();
+            else
+                std::cout << "You haven't selected all spells yet.\n";
+
             break;
         }
         default:
