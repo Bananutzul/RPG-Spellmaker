@@ -2,8 +2,6 @@
 #include <string.h>
 #include <ctime>
 
-using namespace std;
-
 class Spell {
 private:
     static int noSpells;
@@ -237,6 +235,10 @@ public:
     Boss& operator=(const Boss&);
     ~Boss();
 
+    // Setters
+
+    void setName(const char*);
+
 };
 
 // Boss constructors //
@@ -288,25 +290,216 @@ Boss::~Boss() {
     delete[] attackList;
 }
 
+// Boss setters //
+
+void Boss::setName(const char* name) {
+    if (this->name != NULL)
+        delete[] this->name;
+
+    this->name = strcpy(new char[strlen(name) + 1], name);
+}
+
 
 class Game {
+private:
+    const int game_ID;
     Player player;
     Boss boss;
     bool gameWon;
+    int turn_Number;
+
+public:
+
+    // Constructors / operator = //
+    Game();
+    Game(const char*, const char*);
+    Game(const Game&);
+    Game& operator=(const Game&);
+
+
+    // Methods // 
+
+    void run();
+    void setup_Menu();
+
 };
+
+
+// Game constructors //
+
+Game::Game() :game_ID(time(nullptr)){
+    gameWon = false;
+    turn_Number = 0;
+}
+
+Game::Game(const char* player_name, const char* boss_name) :game_ID(time(nullptr)), player(player_name), boss(boss_name){
+    gameWon = false;
+    turn_Number = 0;
+}
+
+Game::Game(const Game& game) :game_ID(time(nullptr)) {
+    player = game.player;
+    boss = game.boss;
+    gameWon = game.gameWon;
+    turn_Number = game.turn_Number;
+}
+
+Game& Game::operator=(const Game& game) {
+    if (this == &game)
+        return *this;
+
+    player = game.player;
+    boss = game.boss;
+    gameWon = game.gameWon;
+    turn_Number = game.turn_Number;
+
+    return *this;
+}
+
+// Methods + ClearScreen function//
+
+void clearScreen() {
+#ifdef _WIN32
+    system("cls");
+#else
+    system("clear");
+#endif
+}
+
+void Game::setup_Menu() {
+    int option;
+
+    bool running = true;
+
+    std::cout << "----------Setup Menu----------\n";
+
+    while(running) {
+        std::cout << "1. Choose name.\n";
+        std::cout << "2. Allocate upgrade points.\n";
+        std::cout << "3. Choose spells.\n";
+        std::cout << "4. Choose boss name.\n";
+        std::cout << "0. Return to main menu.\n";
+
+        std::cin >> option;
+
+        switch (option) {
+            case 1: {
+                clearScreen();
+                std::cout << "Choose your name: ";
+            
+                char player_name[50];
+
+                std::cin.ignore();
+                std::cin.getline(player_name, 50);
+                player.setName(player_name);
+
+                break;
+            }
+            case 2: {
+                clearScreen();
+                std:: cout << "Test\n";
+                break;
+            }
+            case 3: {
+                clearScreen();
+                std::cout << "test1\n";
+                break;
+            }
+            case 4: {
+                clearScreen();
+                
+                std::cout << "Choose boss name: ";
+                
+                char boss_name[50];
+                
+                std::cin.ignore();
+                std::cin.getline(boss_name, 50);
+                boss.setName(boss_name);
+
+                break;
+            } 
+            case 0: {
+                clearScreen();
+                running = false;
+                break;
+            }
+            default: {
+                clearScreen();
+                std::cout << "Invalid option.\n";
+                break;
+            }
+
+        }
+
+    }
+}
+
+void Game::run() {
+    int option;
+
+    bool running = true;
+
+    std::cout << "----------RPG-SpellMaker----------\n";
+
+    while(running) {
+        std::cout << "1. Setup menu.\n";
+        std::cout << "2. See created player.\n";
+        std::cout << "3. Start fight.\n";
+        std::cout << "0. Exit.\n";
+
+        std::cin >> option;
+
+        switch (option) {
+            case 0: {
+                clearScreen();
+                std::cout << "Game has been quit.\n\n";
+                running = false;
+                break;
+            }
+            case 1: {
+                clearScreen();
+                this->setup_Menu();
+                break;
+            }
+
+            case 2: {
+                clearScreen();
+                std::cout << "Test\n\n";
+                break;
+            }
+            case 3: {
+                clearScreen();
+                std::cout << "Battle started\n";
+                break;
+            }
+            default: {
+                clearScreen();
+                std::cout << "Invalid option.\n";
+                break;
+            }
+
+        }
+    }
+
+}
+
+
 
 
 int main() {
 
-    char nume[10];
+    // char nume[10];
 
-    std::cout << "Intoduceti un nume: ";
+    // std::cout << "Intoduceti un nume: ";
 
-    std::cin >> nume;
+    // std::cin >> nume;
 
-    std::cout << "Nume introdus\n";
+    // std::cout << "Nume introdus\n";
 
-    Player player(nume);
+    // Player player(nume);
 
-    std::cout << player.getName();
+    // std::cout << player.getName();
+
+    Game game;
+    game.run();
 }
