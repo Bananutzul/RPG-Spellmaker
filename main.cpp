@@ -38,6 +38,10 @@ public:
     double calculateDamage(const Player &);
     // Spell readSpell();
 
+    // getters
+
+    const char* getName() const;
+
     // operators
     friend std::ostream& operator<<(std::ostream&, const Spell&);
     friend std::istream& operator>>(std::istream&, Spell&);
@@ -140,6 +144,12 @@ Spell::~Spell()
     delete[] spell_Name;
 }
 
+// Spell getters // 
+
+const char* Spell::getName() const {
+    return spell_Name;
+}
+
 // Spell methods
 
 // Spell Spell::readSpell() {
@@ -174,6 +184,7 @@ class Player
 private:
     char *name;
     double mana;
+    int hp;
     int intelligence; // stat that scales damage
     int focus;        // stat that scales mana
     Spell *spells;
@@ -196,6 +207,9 @@ public:
     const char *getName() const;
     const int getIntelligence() const;
     const int getFocus() const;
+    const Spell getSpells(const int&) const;
+    const int getHP() const;
+    const int getMana() const;
 
     // methods
     void chooseSpells();
@@ -214,6 +228,7 @@ Player::Player() : max_Spells(3)
     mana = 100;
     intelligence = 10;
     focus = 8;
+    hp = 100;
     upgrade_points = 15;
     nrSpells = 0;
     spells = new Spell[max_Spells];
@@ -226,6 +241,7 @@ Player::Player(const char *name) : max_Spells(3)
     intelligence = 10;
     focus = 8;
     upgrade_points = 15;
+    hp = 100;
     nrSpells = 0;
     spells = new Spell[max_Spells];
 }
@@ -236,6 +252,7 @@ Player::Player(const Player &player) : max_Spells(3)
     mana = 100;
     intelligence = 10;
     focus = 8;
+    hp = 100;
     upgrade_points = 15;
     nrSpells = player.nrSpells;
 
@@ -258,6 +275,7 @@ Player &Player::operator=(const Player &player)
     focus = player.focus;
     upgrade_points = player.upgrade_points;
     nrSpells = player.nrSpells;
+    hp = player.hp;
 
     delete[] spells;
     spells = new Spell[max_Spells];
@@ -298,6 +316,21 @@ const int Player::getIntelligence() const
 const int Player::getFocus() const 
 {
     return focus;
+}
+
+const int Player::getHP() const
+{
+    return hp;
+}
+
+const int Player::getMana() const
+{
+    return mana;
+}
+
+const Spell Player::getSpells(const int& idx) const
+{
+    return spells[idx];
 }
 
 // Player methods //
@@ -542,6 +575,7 @@ private:
     char *name;
     double hp;
     float defense;
+    char *possibleAttacks;
     char *attackList;
     const int nrAttacks;
 
@@ -561,6 +595,7 @@ public:
     const char* getName() const;
     const int getHP() const;
     const float getDefense() const;
+    const char getAttack(const int&) const;
 
     // Operators
     friend std::ostream& operator<<(std::ostream&, const Boss& boss);
@@ -569,31 +604,36 @@ public:
 
 // Boss constructors //
 
-Boss::Boss() : boss_ID(time(nullptr)), nrAttacks(5)
+Boss::Boss() : boss_ID(time(nullptr)), nrAttacks(10)
 {
     name = strcpy(new char[strlen("The Lich") + 1], "The Lich");
     hp = 500;
     defense = 0.5;
+    possibleAttacks = strcpy(new char[6], "ICSWA"); // I - ice, C - Colossal Slash, S - Skulls, W - Water, A - Air 
 
     attackList = new char[nrAttacks + 1];
-    attackList[0] = '\0'; // initialize the attack list string with terminator, so it doesn't contain garbage
+    for (int i = 0; i < nrAttacks; i++)
+        attackList[i] = possibleAttacks[rand() % 5];
 }
 
-Boss::Boss(const char *name) : boss_ID(time(nullptr)), nrAttacks(5)
+Boss::Boss(const char *name) : boss_ID(time(nullptr)), nrAttacks(10)
 {
     this->name = strcpy(new char[strlen(name) + 1], name);
     hp = 500;
     defense = 0.5;
+    possibleAttacks = strcpy(new char[6], "ICSWA"); // I - ice, C - Colossal Slash, S - Skulls, W - Water, A - Air 
 
     attackList = new char[nrAttacks + 1];
-    attackList[0] = '\0';
+    for (int i = 0; i < nrAttacks; i++)
+        attackList[i] = possibleAttacks[rand() % 5];
 }
 
-Boss::Boss(const Boss &boss) : boss_ID(time(nullptr)), nrAttacks(5)
+Boss::Boss(const Boss &boss) : boss_ID(time(nullptr)), nrAttacks(10)
 {
     name = strcpy(new char[strlen(boss.name) + 1], boss.name);
     hp = boss.hp;
     defense = boss.defense;
+    possibleAttacks = strcpy(new char[6], "ICSWA"); // I - ice, C - Colossal Slash, S - Skulls, W - Water, A - Air 
 
     attackList = strcpy(new char[nrAttacks + 1], boss.attackList);
 }
@@ -608,6 +648,11 @@ Boss &Boss::operator=(const Boss &boss)
     hp = boss.hp;
     defense = boss.defense;
 
+    if (possibleAttacks != NULL)
+        delete[] possibleAttacks;
+
+    possibleAttacks = strcpy(new char[6], "ICSWA"); // I - ice, C - Collosal Slash, S - Skulls, W - Water, A - Air 
+
     delete[] attackList;
     attackList = strcpy(new char[nrAttacks + 1], boss.attackList);
 
@@ -618,6 +663,7 @@ Boss::~Boss()
 {
     delete[] name;
     delete[] attackList;
+    delete[] possibleAttacks;
 }
 
 // Boss setters //
@@ -642,6 +688,10 @@ const int Boss::getHP() const {
 
 const float Boss::getDefense() const {
     return defense;
+}
+
+const char Boss::getAttack(const int& turn) const {
+    return attackList[turn];
 }
 
 // Boss operators //
@@ -687,6 +737,7 @@ public:
 
     void run();
     void setup_Menu();
+    void battle();
 };
 
 // Game constructors //
@@ -728,7 +779,7 @@ Game &Game::operator=(const Game &game)
 
 void Game::setup_Menu()
 {
-    int option;
+    char option;
 
     bool running = true;
 
@@ -745,31 +796,31 @@ void Game::setup_Menu()
 
         switch (option)
         {
-        case 1:
+        case '1':
         {
             clearScreen();
             std::cin >> player;
             break;
         }
-        case 2:
+        case '2':
         {
             clearScreen();
             player.upgradeStats();
             break;
         }
-        case 3:
+        case '3':
         {
             clearScreen();
             this->player.chooseSpells();
             break;
         }
-        case 4:
+        case '4':
         {
             clearScreen();
             std::cin >> boss;
             break;
         }
-        case 0:
+        case '0':
         {
             clearScreen();
             running = false;
@@ -785,9 +836,69 @@ void Game::setup_Menu()
     }
 }
 
+void Game::battle() {
+    while (turn_Number < 10) {
+        clearScreen();
+
+        std::cout << "Turn # " << turn_Number + 1<< "\n";
+
+        std::cout << "Boss HP: " << boss.getHP() << "\n";
+
+        std::cout << player.getName() << "'s HP: " << player.getHP() << "\n";
+
+        std::cout << player.getName() << "'s Mana: " << player.getMana() << "\n";
+
+        std::cout << "Boss chooses attack: ";
+
+        char attack = boss.getAttack(turn_Number);
+
+        switch (attack) {
+            case 'I':
+                std::cout << "Ice\n";
+                break;
+            case 'C':
+                std::cout << "Colossal Slash\n";
+                break;
+            case 'S':
+                std::cout << "Flying Skulls\n";
+                break;
+            case 'W':
+                std::cout << "Water Spiral\n";
+                break;
+            case 'A':
+                std::cout << "Crushing Wind\n";
+                break;
+            default:
+                std::cout << "Invalid attack\n";
+                break;
+        }
+
+        std::cout << "Choose your spell:\n";
+
+        std::cout << "[1]";
+        std::cout << player.getSpells(0).getName();
+        std::cout << "\n";
+
+        std::cout << "[2]";
+        std::cout << player.getSpells(1).getName();
+        std::cout << "\n";
+
+        std::cout << "[3]";
+        std::cout << player.getSpells(2).getName();
+        std::cout << "\n";
+
+        char option;
+
+        std::cin >> option;
+
+        turn_Number++;
+    }
+
+}
+
 void Game::run()
 {
-    int option;
+    char option;
 
     bool running = true;
 
@@ -806,35 +917,35 @@ void Game::run()
 
         switch (option)
         {
-        case 0:
+        case '0':
         {
             clearScreen();
             std::cout << "Game has been quit.\n\n";
             running = false;
             break;
         }
-        case 1:
+        case '1':
         {
             clearScreen();
             this->setup_Menu();
             break;
         }
 
-        case 2:
+        case '2':
         {
             clearScreen();
             std::cout << player;
             break;
         }
-        case 3: {
+        case '3': {
             clearScreen();
             std::cout << boss;
             break;
         }
-        case 4:
+        case '4':
         {
             clearScreen();
-            std::cout << "Battle started\n";
+            battle();
             break;
         }
         default:
