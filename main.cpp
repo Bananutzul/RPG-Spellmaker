@@ -36,6 +36,11 @@ public:
 
     // methods
     double calculateDamage(const Player &);
+    Spell readSpell();
+
+    // operators
+    friend std::ostream& operator<<(std::ostream&, const Spell&);
+    friend std::istream& operator>>(std::istream&, const Spell&);
 };
 
 int Spell::noSpells = 0;
@@ -136,6 +141,34 @@ Spell::~Spell()
 }
 
 // Spell methods
+
+Spell Spell::readSpell() {
+    Spell spell;
+    std::cin >> spell;
+    return spell;
+}
+
+// Spell operators
+
+std::ostream& operator<<(std::ostream& os, const Spell& spell) {
+    clearScreen();
+    os << "Element: " << spell.spell_Name << "\n";
+    os << "Damage: " << spell.damage << "\n";
+    os << "Mana cost: " << spell.mana_Cost << "\n";
+    os << "Number of hits: " << spell.nr_hits << "\n";
+
+    return os;
+}
+
+std::istream& operator>>(std::istream& is, Spell& spell) {
+    char elem;
+
+    is >> elem;
+    Spell newspell(elem);
+    spell = newspell;
+
+    return is;
+}
 
 class Player
 {
@@ -699,7 +732,8 @@ void Game::run()
         std::cout << "\n----------Main Menu----------\n";
         std::cout << "1. Setup menu.\n";
         std::cout << "2. See created player.\n";
-        std::cout << "3. Start fight.\n";
+        std::cout << "3. See boss.\n";
+        std::cout << "4. Start fight.\n";
         std::cout << "0. Exit.\n";
 
         std::cin >> option;
@@ -723,10 +757,15 @@ void Game::run()
         case 2:
         {
             clearScreen();
-            std::cout << "Test\n\n";
+            std::cout << "Test\n";
             break;
         }
-        case 3:
+        case 3: {
+            clearScreen();
+            std::cout << "test\n";
+            break;
+        }
+        case 4:
         {
             clearScreen();
             std::cout << "Battle started\n";
