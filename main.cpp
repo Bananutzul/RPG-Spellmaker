@@ -36,7 +36,7 @@ public:
 
     // methods
     double calculateDamage(const Player &);
-    Spell readSpell();
+    // Spell readSpell();
 
     // operators
     friend std::ostream& operator<<(std::ostream&, const Spell&);
@@ -142,16 +142,15 @@ Spell::~Spell()
 
 // Spell methods
 
-Spell Spell::readSpell() {
-    Spell spell;
-    std::cin >> spell;
-    return spell;
-}
+// Spell Spell::readSpell() {
+//     Spell spell;
+//     std::cin >> spell;
+//     return spell;
+// }
 
 // Spell operators
 
 std::ostream& operator<<(std::ostream& os, const Spell& spell) {
-    clearScreen();
     os << "Element: " << spell.spell_Name << "\n";
     os << "Damage: " << spell.damage << "\n";
     os << "Mana cost: " << spell.mana_Cost << "\n";
@@ -196,10 +195,15 @@ public:
     // getters
     const char *getName() const;
     const int getIntelligence() const;
+    const int getFocus() const;
 
     // methods
     void chooseSpells();
     void upgradeStats();
+
+    // operators
+    friend std::ostream& operator<<(std::ostream&, const Player&);
+    friend std::istream& operator>>(std::istream&, Player&);
 };
 
 // Player constructors //
@@ -289,6 +293,11 @@ const char *Player::getName() const
 const int Player::getIntelligence() const
 {
     return intelligence;
+}
+
+const int Player::getFocus() const 
+{
+    return focus;
 }
 
 // Player methods //
@@ -429,7 +438,7 @@ void Player::upgradeStats()
 
                 std::cout << "\n";
 
-                if (points >= upgrade_points)
+                if (points > upgrade_points)
                     std::cout << "You don't have enough points left.\n";
                 else
                 {
@@ -470,11 +479,39 @@ void Player::upgradeStats()
     }
 }
 
+// Player operators //
+
+std::ostream& operator<<(std::ostream& os, const Player& player) {
+    os << "Player name: " << player.getName() << ".\n";
+    os << "Intelligence: " << player.getIntelligence() << ".\n";
+    os << "Focus: " << player.getFocus() << ".\n";
+    os << "Spells chosen: " << player.nrSpells << "\n\n";
+
+    for (int i = 0; i < player.nrSpells; i++) {
+        os << "Spell #" << i + 1 << "\n";
+        os << player.spells[i] << "\n";
+    }
+
+    return os;
+}
+
+std::istream& operator>>(std::istream& is, Player& player) {
+    std::cout << "Choose your name: ";
+    
+    char name[50];
+    is.ignore();
+    is.getline(name, 50);
+
+    player.setName(name);
+
+    return is;
+}
+
 // Spell method that uses player int stat
 
 double Spell::calculateDamage(const Player &player)
 {
-    if (this->spell_Name == "Invisibility")
+    if (strcmp(this->spell_Name, "Invisibility") == 0)
         return 0;
 
     double final_damage = this->damage;
@@ -651,7 +688,7 @@ void Game::setup_Menu()
     bool running = true;
 
     while (running)
-    {
+    {   
         std::cout << "----------Setup Menu----------\n";
         std::cout << "\n1. Choose name.\n";
         std::cout << "2. Allocate upgrade points.\n";
@@ -666,14 +703,7 @@ void Game::setup_Menu()
         case 1:
         {
             clearScreen();
-            std::cout << "Choose your name: ";
-
-            char player_name[50];
-
-            std::cin.ignore();
-            std::cin.getline(player_name, 50);
-            player.setName(player_name);
-
+            std::cin >> player;
             break;
         }
         case 2:
@@ -728,7 +758,6 @@ void Game::run()
 
     while (running)
     {
-
         std::cout << "\n----------Main Menu----------\n";
         std::cout << "1. Setup menu.\n";
         std::cout << "2. See created player.\n";
@@ -757,7 +786,7 @@ void Game::run()
         case 2:
         {
             clearScreen();
-            std::cout << "Test\n";
+            std::cout << player;
             break;
         }
         case 3: {
