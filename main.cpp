@@ -698,7 +698,7 @@ public:
 Boss::Boss() : boss_ID(time(nullptr)), nrAttacks(10)
 {
     name = strcpy(new char[strlen("The Lich") + 1], "The Lich");
-    hp = 350;
+    hp = 500;
     defense = 0.5;
     possibleAttacks = strcpy(new char[6], "ICSWA"); // I - ice, C - Colossal Slash, S - Skulls, W - Water, A - Air
 
@@ -711,7 +711,7 @@ Boss::Boss() : boss_ID(time(nullptr)), nrAttacks(10)
 Boss::Boss(const char *name) : boss_ID(time(nullptr)), nrAttacks(10)
 {
     this->name = strcpy(new char[strlen(name) + 1], name);
-    hp = 350;
+    hp = 500;
     defense = 0.5;
     possibleAttacks = strcpy(new char[6], "ICSWA"); // I - ice, C - Colossal Slash, S - Skulls, W - Water, A - Air
 
