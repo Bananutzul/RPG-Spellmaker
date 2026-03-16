@@ -41,6 +41,7 @@ public:
 
     // getters
     const char *getName() const;
+    const double getCost() const;
 
     // operators
     friend std::ostream &operator<<(std::ostream &, const Spell &);
@@ -160,6 +161,11 @@ const char *Spell::getName() const
     return spell_Name;
 }
 
+const double Spell::getCost() const 
+{
+    return mana_Cost;
+}
+
 // Spell methods
 
 // Spell Spell::readSpell() {
@@ -225,7 +231,7 @@ public:
     // methods
     void chooseSpells();
     void upgradeStats();
-    void consumeMana(const Spell& spell);
+    void consumeMana(const Spell&);
     void calculateMana();
 
     // operators
@@ -349,6 +355,10 @@ const Spell& Player::getSpells(const int &idx) const
 }
 
 // Player methods //
+
+void Player::consumeMana(const Spell& spell) {
+    mana -= spell.getCost();
+}
 
 void Player::calculateMana() {
     mana = 100 + focus * 10;
@@ -988,18 +998,21 @@ void Game::battle()
             case '1':
             {
                 std::cout << "Spell 1 chosen\n";
+                player.consumeMana(player.getSpells(0));
                 chosen = true;
                 break;
             }
             case '2':
             {
                 std::cout << "Spell 2 chosen\n";
+                player.consumeMana(player.getSpells(1));
                 chosen = true;
                 break;
             }
             case '3':
             {
                 std::cout << "Spell 3 chosen\n";
+                player.consumeMana(player.getSpells(2));
                 chosen = true;
                 break;
             }
