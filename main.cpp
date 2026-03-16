@@ -793,12 +793,26 @@ public:
     Game(const Game &);
     Game &operator=(const Game &);
 
+    // Operators //
+    friend std::ostream& operator<<(std::ostream&, const Game&);
+    // friend std::istream& operator>>(std::istream&, Game&);
+
+
     // Methods //
 
     void run();
     void setup_Menu();
     void battle();
+
+    // Getters //
+    const int getID() const;
 };
+
+// Game Getters //
+
+const int Game::getID() const {
+    return game_ID;
+}
 
 // Game constructors //
 
@@ -833,6 +847,14 @@ Game &Game::operator=(const Game &game)
     turn_Number = game.turn_Number;
 
     return *this;
+}
+
+// Operators //
+
+std::ostream& operator<<(std::ostream& os, const Game& game) {
+    os << "The current game has the ID: " << game.getID() << "\n";
+
+    return os;
 }
 
 // Methods //
@@ -1088,5 +1110,6 @@ int main()
     std::srand(std::time(nullptr)); // seed RNG
 
     Game game;
+    std::cout << game;
     game.run();
 }
