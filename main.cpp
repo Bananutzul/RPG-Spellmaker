@@ -1,5 +1,4 @@
 #include <iostream>
-#include <string.h>
 #include <ctime>
 #include <cstdlib>
 #include <cstring>
@@ -197,7 +196,6 @@ class Player
 private:
     char *name;
     double mana;
-    int hp;
     int intelligence; // stat that scales damage
     int focus;        // stat that scales mana
     Spell *spells;
@@ -220,14 +218,15 @@ public:
     const char *getName() const;
     const int getIntelligence() const;
     const int getFocus() const;
-    const Spell getSpells(const int &) const;
-    const int getHP() const;
-    const int getMana() const;
+    const Spell& getSpells(const int &) const;
+    const double getMana() const;
     const int getNrSpells() const;
 
     // methods
     void chooseSpells();
     void upgradeStats();
+    void consumeMana(const Spell& spell);
+    void calculateMana();
 
     // operators
     friend std::ostream &operator<<(std::ostream &, const Player &);
@@ -239,10 +238,11 @@ public:
 Player::Player() : max_Spells(3)
 {
     name = strcpy(new char[6], "Player");
-    mana = 100;
     intelligence = 10;
     focus = 8;
-    hp = 100;
+
+    calculateMana();
+
     upgrade_points = 15;
     nrSpells = 0;
     spells = new Spell[max_Spells];
@@ -251,11 +251,12 @@ Player::Player() : max_Spells(3)
 Player::Player(const char *name) : max_Spells(3)
 {
     this->name = strcpy(new char[strlen(name) + 1], name);
-    mana = 100;
     intelligence = 10;
     focus = 8;
+
+    calculateMana();
+
     upgrade_points = 15;
-    hp = 100;
     nrSpells = 0;
     spells = new Spell[max_Spells];
 }
@@ -263,11 +264,12 @@ Player::Player(const char *name) : max_Spells(3)
 Player::Player(const Player &player) : max_Spells(3)
 {
     name = strcpy(new char[strlen(player.name) + 1], player.name);
-    mana = 100;
-    intelligence = 10;
-    focus = 8;
-    hp = 100;
-    upgrade_points = 15;
+    intelligence = player.intelligence;
+    focus = player.focus;
+
+    mana = player.mana;
+
+    upgrade_points = player.upgrade_points;
     nrSpells = player.nrSpells;
 
     spells = new Spell[max_Spells];
@@ -289,7 +291,6 @@ Player &Player::operator=(const Player &player)
     focus = player.focus;
     upgrade_points = player.upgrade_points;
     nrSpells = player.nrSpells;
-    hp = player.hp;
 
     delete[] spells;
     spells = new Spell[max_Spells];
@@ -332,12 +333,7 @@ const int Player::getFocus() const
     return focus;
 }
 
-const int Player::getHP() const
-{
-    return hp;
-}
-
-const int Player::getMana() const
+const double Player::getMana() const
 {
     return mana;
 }
@@ -347,12 +343,16 @@ const int Player::getNrSpells() const
     return nrSpells;
 }
 
-const Spell Player::getSpells(const int &idx) const
+const Spell& Player::getSpells(const int &idx) const
 {
     return spells[idx];
 }
 
 // Player methods //
+
+void Player::calculateMana() {
+    mana = 100 + focus * 10;
+}
 
 void Player::chooseSpells()
 {
@@ -550,6 +550,7 @@ void Player::upgradeStats()
                 {
                     focus += points;
                     upgrade_points -= points;
+                    calculateMana();
                 }
 
                 break;
@@ -648,7 +649,7 @@ public:
 
     // Getters
     const char *getName() const;
-    const int getHP() const;
+    const double getHP() const;
     const float getDefense() const;
     const char getAttack(const int &) const;
 
@@ -669,6 +670,7 @@ Boss::Boss() : boss_ID(time(nullptr)), nrAttacks(10)
     attackList = new char[nrAttacks + 1];
     for (int i = 0; i < nrAttacks; i++)
         attackList[i] = possibleAttacks[rand() % 5];
+    attackList[nrAttacks] = '\0';
 }
 
 Boss::Boss(const char *name) : boss_ID(time(nullptr)), nrAttacks(10)
@@ -681,6 +683,7 @@ Boss::Boss(const char *name) : boss_ID(time(nullptr)), nrAttacks(10)
     attackList = new char[nrAttacks + 1];
     for (int i = 0; i < nrAttacks; i++)
         attackList[i] = possibleAttacks[rand() % 5];
+    attackList[nrAttacks] = '\0';
 }
 
 Boss::Boss(const Boss &boss) : boss_ID(time(nullptr)), nrAttacks(10)
@@ -738,7 +741,7 @@ const char *Boss::getName() const
     return name;
 }
 
-const int Boss::getHP() const
+const double Boss::getHP() const
 {
     return hp;
 }
@@ -926,9 +929,7 @@ void Game::battle()
 
         std::cout << "Turn # " << turn_Number + 1 << "\n";
 
-        std::cout << "Boss HP: " << boss.getHP() << "\n";
-
-        std::cout << player.getName() << "'s HP: " << player.getHP() << "\n";
+        std::cout << boss.getName() << " HP: " << boss.getHP() << "\n";
 
         std::cout << player.getName() << "'s Mana: " << player.getMana() << "\n";
 
@@ -1075,8 +1076,10 @@ void Game::run()
         case '4':
         {
             clearScreen();
-            if (player.getNrSpells() == 3)
+            if (player.getNrSpells() == 3) {
                 battle();
+                running = false;
+            }
             else
                 std::cout << "You haven't selected all spells yet.\n";
 
