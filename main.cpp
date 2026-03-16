@@ -36,7 +36,7 @@ public:
     ~Spell();
 
     // methods
-    double calculateDamage(const Player &);
+    double calculateDamage(const Player &) const;
     // Spell readSpell();
 
     // getters
@@ -219,6 +219,7 @@ public:
 
     // setters
     void setName(const char *);
+    void setMana();  // when hit by the big attack, reduce mana by 50
 
     // getters
     const char *getName() const;
@@ -314,6 +315,10 @@ Player::~Player()
 }
 
 // Player setters //
+
+void Player::setMana() {
+    this->mana -= 50;
+}
 
 void Player::setName(const char *name)
 {
@@ -608,7 +613,7 @@ std::istream &operator>>(std::istream &is, Player &player)
 
 // Spell method that uses player int stat
 
-double Spell::calculateDamage(const Player &player)
+double Spell::calculateDamage(const Player &player) const
 {
     if (strcmp(this->spell_Name, "Invisibility") == 0)
         return 0;
@@ -666,6 +671,10 @@ public:
     // Operators
     friend std::ostream &operator<<(std::ostream &, const Boss &boss);
     friend std::istream &operator>>(std::istream &, Boss &boss);
+
+    // Methods
+    void applyDamage(double);
+    void checkSpellInteraction(Player& player, const Spell&, int); // function that modifies the boss's defense based on spell chosen / attack countered
 };
 
 // Boss constructors //
@@ -788,6 +797,58 @@ std::istream &operator>>(std::istream &is, Boss &boss)
     boss.setName(name);
 
     return is;
+}
+
+// Boss Methods //
+
+void Boss::checkSpellInteraction(Player& player, const Spell& spell, int turn) {
+    const char* spell_type = spell.getName();
+
+    char attack = getAttack(turn);
+
+    if (strcmp(spell_type, "Fire") == 0&& attack == 'I') {
+        defense = 1;
+        std::cout << "You melt the Ice Spikes and deal extra damage!\n";
+    }
+    else if (strcmp(spell_type, "Fire") == 0&& attack == 'W') {
+        defense = 0.2;
+        std::cout << "The Water Spiral almost engulfs your attack, leaving only a spark lit.\n";
+    }
+    else if (strcmp(spell_type, "Fire") == 0 && attack == 'A') {
+        defense = 0.85;
+        std::cout << "Your Fire spell ignites " << getName() << "'s Wind, creating a mesmerizing, yet destructive storm of flames.\n";
+    }
+    else if (strcmp(spell_type, "Tornado") == 0 && attack == 'S') {
+        defense = 0.9;
+        std::cout << "Your Tornado sends the Flying Skulls in all directions, leaving " << getName() << " defenseless as you attack.\n";
+    }
+    else if (strcmp(spell_type, "Earthquake") == 0 && attack == 'W') {
+        defense = 0.8;
+        std::cout << "Your Earthquake creates a stable platform, allowing you to withstand the wave and counterattack.\n";
+    }
+    else if (strcmp(spell_type, "Lightning") == 0 && attack == 'W') {
+        defense = 1;
+        std::cout << "Your Lightning travels across the surface of the Wave summoned by " << getName() << ", gaining power the farther it goes.\n";
+    }
+    else if (strcmp(spell_type, "Invisibility") == 0) {
+        if (attack == 'C') {
+            std::cout << "You dodged " << getName() << "'s colossal attack! " << getName() << " stumbles after missing and injures themselves.\n";
+            defense = 1;
+            applyDamage(75);
+        } else {
+            std::cout << "You were gravely injured by the slash and had to use up some mana to recover\n";
+            player.setMana();
+        }
+    }else {
+        std::cout << "Your spell had no special interaction with " << getName() << "'s attack.\n";
+        defense = 0.5;
+    }
+}
+
+void Boss::applyDamage(double init_dmg_taken) {
+    double final_dmg_taken = defense * init_dmg_taken;
+
+    hp -= final_dmg_taken;
 }
 
 class Game
@@ -999,6 +1060,8 @@ void Game::battle()
             {
                 std::cout << "Spell 1 chosen\n";
                 player.consumeMana(player.getSpells(0));
+                boss.checkSpellInteraction(player, player.getSpells(0), turn_Number);
+                boss.applyDamage(player.getSpells(0).calculateDamage(player));
                 chosen = true;
                 break;
             }
@@ -1006,6 +1069,8 @@ void Game::battle()
             {
                 std::cout << "Spell 2 chosen\n";
                 player.consumeMana(player.getSpells(1));
+                boss.checkSpellInteraction(player, player.getSpells(1), turn_Number);
+                boss.applyDamage(player.getSpells(1).calculateDamage(player));
                 chosen = true;
                 break;
             }
@@ -1013,6 +1078,8 @@ void Game::battle()
             {
                 std::cout << "Spell 3 chosen\n";
                 player.consumeMana(player.getSpells(2));
+                boss.checkSpellInteraction(player, player.getSpells(2), turn_Number);
+                boss.applyDamage(player.getSpells(2).calculateDamage(player));
                 chosen = true;
                 break;
             }
