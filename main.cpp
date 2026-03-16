@@ -1175,7 +1175,7 @@ void Game::battle()
 
         std::cout << "Press Enter to continue or [Q] to quit\n";
 
-        if (std::cin.peek() == 'Q')
+        if (std::cin.peek() == 'Q' || std::cin.peek() == 'q')
             break;
 
         std::cin.ignore(1000, '\n');
