@@ -531,7 +531,7 @@ void Player::upgradeStats()
             std::cout << "\nYou currently have " << upgrade_points << " points left.\n";
             std::cout << "Choose which stat you would like to upgrade: Intelligence[I]/Focus[F]/Quit[Q]\n";
             std::cout << "Intelligence: increases spell damage.\n"
-                      << "Focus: decreases mana cost of spells.\n";
+                      << "Focus: Increases mana.\n";
 
             std::cin >> option;
 
@@ -896,7 +896,7 @@ public:
 
     // Operators //
     friend std::ostream &operator<<(std::ostream &, const Game &);
-    // friend std::istream& operator>>(std::istream&, Game&);
+    friend std::istream& operator>>(std::istream&, Game&);
 
     // Methods //
 
@@ -908,6 +908,7 @@ public:
 
     // Getters //
     const int getID() const;
+    const Player& getPlayer() const;
 };
 
 // Game Getters //
@@ -915,6 +916,10 @@ public:
 const int Game::getID() const
 {
     return game_ID;
+}
+
+const Player& Game::getPlayer() const {
+    return player;
 }
 
 // Game constructors //
@@ -959,6 +964,15 @@ std::ostream &operator<<(std::ostream &os, const Game &game)
     os << "The current game has the ID: " << game.getID() << "\n";
 
     return os;
+}
+
+std::istream &operator>>(std::istream &is, Game& game)
+{
+    std::cout << "Game started.\n";
+
+    is >> game.player;
+
+    return is;
 }
 
 // Methods //
