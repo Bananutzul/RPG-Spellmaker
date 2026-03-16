@@ -69,7 +69,7 @@ Spell::Spell(char chosen_element) : spell_ID(++noSpells)
     case 'F':
         std::cout << "Fire\n";
         this->spell_Name = strcpy(new char[5], "Fire");
-        damage = 20;
+        damage = 40;
         nr_hits = 1;
         mana_Cost = 10;
         can_crit = false;
@@ -161,7 +161,7 @@ const char *Spell::getName() const
     return spell_Name;
 }
 
-const double Spell::getCost() const 
+const double Spell::getCost() const
 {
     return mana_Cost;
 }
@@ -219,20 +219,20 @@ public:
 
     // setters
     void setName(const char *);
-    void setMana();  // when hit by the big attack, reduce mana by 50
+    void setMana(); // when hit by the big attack, reduce mana by 50
 
     // getters
     const char *getName() const;
     const int getIntelligence() const;
     const int getFocus() const;
-    const Spell& getSpells(const int &) const;
+    const Spell &getSpells(const int &) const;
     const double getMana() const;
     const int getNrSpells() const;
 
     // methods
     void chooseSpells();
     void upgradeStats();
-    void consumeMana(const Spell&);
+    void consumeMana(const Spell &);
     void calculateMana();
     bool checkIfCanCast();
 
@@ -317,7 +317,8 @@ Player::~Player()
 
 // Player setters //
 
-void Player::setMana() {
+void Player::setMana()
+{
     this->mana -= 50;
 }
 
@@ -355,14 +356,15 @@ const int Player::getNrSpells() const
     return nrSpells;
 }
 
-const Spell& Player::getSpells(const int &idx) const
+const Spell &Player::getSpells(const int &idx) const
 {
     return spells[idx];
 }
 
 // Player methods //
 
-bool Player::checkIfCanCast() {
+bool Player::checkIfCanCast()
+{
     if (getMana() >= getSpells(0).getCost())
         return true;
     if (getMana() >= getSpells(1).getCost())
@@ -373,11 +375,13 @@ bool Player::checkIfCanCast() {
     return false;
 }
 
-void Player::consumeMana(const Spell& spell) {
+void Player::consumeMana(const Spell &spell)
+{
     mana -= spell.getCost();
 }
 
-void Player::calculateMana() {
+void Player::calculateMana()
+{
     mana = 100 + focus * 10;
 }
 
@@ -686,7 +690,7 @@ public:
 
     // Methods
     void applyDamage(double);
-    void checkSpellInteraction(Player& player, const Spell&, int); // function that modifies the boss's defense based on spell chosen / attack countered
+    void checkSpellInteraction(Player &player, const Spell &, int); // function that modifies the boss's defense based on spell chosen / attack countered
 };
 
 // Boss constructors //
@@ -694,7 +698,7 @@ public:
 Boss::Boss() : boss_ID(time(nullptr)), nrAttacks(10)
 {
     name = strcpy(new char[strlen("The Lich") + 1], "The Lich");
-    hp = 500;
+    hp = 350;
     defense = 0.5;
     possibleAttacks = strcpy(new char[6], "ICSWA"); // I - ice, C - Colossal Slash, S - Skulls, W - Water, A - Air
 
@@ -707,7 +711,7 @@ Boss::Boss() : boss_ID(time(nullptr)), nrAttacks(10)
 Boss::Boss(const char *name) : boss_ID(time(nullptr)), nrAttacks(10)
 {
     this->name = strcpy(new char[strlen(name) + 1], name);
-    hp = 500;
+    hp = 350;
     defense = 0.5;
     possibleAttacks = strcpy(new char[6], "ICSWA"); // I - ice, C - Colossal Slash, S - Skulls, W - Water, A - Air
 
@@ -813,51 +817,62 @@ std::istream &operator>>(std::istream &is, Boss &boss)
 
 // Boss Methods //
 
-void Boss::checkSpellInteraction(Player& player, const Spell& spell, int turn) {
-    const char* spell_type = spell.getName();
+void Boss::checkSpellInteraction(Player &player, const Spell &spell, int turn)
+{
+    const char *spell_type = spell.getName();
 
     char attack = getAttack(turn);
 
-    if (strcmp(spell_type, "Fire") == 0&& attack == 'I') {
+    if (strcmp(spell_type, "Fire") == 0 && attack == 'I')
+    {
         defense = 1;
         std::cout << "You melt the Ice Spikes and deal extra damage!\n";
     }
-    else if (strcmp(spell_type, "Fire") == 0&& attack == 'W') {
+    else if (strcmp(spell_type, "Fire") == 0 && attack == 'W')
+    {
         defense = 0.2;
         std::cout << "The Water Spiral almost engulfs your attack, leaving only a spark lit.\n";
     }
-    else if (strcmp(spell_type, "Fire") == 0 && attack == 'A') {
+    else if (strcmp(spell_type, "Fire") == 0 && attack == 'A')
+    {
         defense = 0.85;
         std::cout << "Your Fire spell ignites " << getName() << "'s Wind, creating a mesmerizing, yet destructive storm of flames.\n";
     }
-    else if (strcmp(spell_type, "Tornado") == 0 && attack == 'S') {
+    else if (strcmp(spell_type, "Tornado") == 0 && attack == 'S')
+    {
         defense = 0.9;
         std::cout << "Your Tornado sends the Flying Skulls in all directions, leaving " << getName() << " defenseless as you attack.\n";
     }
-    else if (strcmp(spell_type, "Earthquake") == 0 && attack == 'W') {
+    else if (strcmp(spell_type, "Earthquake") == 0 && attack == 'W')
+    {
         defense = 0.8;
         std::cout << "Your Earthquake creates a stable platform, allowing you to withstand the wave and counterattack.\n";
     }
-    else if (strcmp(spell_type, "Lightning") == 0 && attack == 'W') {
+    else if (strcmp(spell_type, "Lightning") == 0 && attack == 'W')
+    {
         defense = 1;
         std::cout << "Your Lightning travels across the surface of the Wave summoned by " << getName() << ", gaining power the farther it goes.\n";
     }
-    else if (strcmp(spell_type, "Invisibility") == 0) {
-        if (attack == 'C') {
-            std::cout << "You dodged " << getName() << "'s colossal attack! " << getName() << " stumbles after missing and injures themselves.\n";
-            defense = 1;
-            applyDamage(75);
-        } else {
-            std::cout << "You were gravely injured by the slash and had to use up some mana to recover\n";
-            player.setMana();
-        }
-    }else {
+    else if (strcmp(spell_type, "Invisibility") == 0 && attack == 'C')
+    {
+        std::cout << "You dodged " << getName() << "'s colossal attack! " << getName() << " stumbles after missing and injures themselves.\n";
+        defense = 1;
+        applyDamage(75);
+    }
+    else if (attack == 'C')
+    {
+        std::cout << "You were gravely injured by the slash and had to use up some mana to recover\n";
+        player.setMana();
+    }
+    else
+    {
         std::cout << "Your spell had no special interaction with " << getName() << "'s attack.\n";
         defense = 0.5;
     }
 }
 
-void Boss::applyDamage(double init_dmg_taken) {
+void Boss::applyDamage(double init_dmg_taken)
+{
     double final_dmg_taken = defense * init_dmg_taken;
 
     hp -= final_dmg_taken;
@@ -880,9 +895,8 @@ public:
     Game &operator=(const Game &);
 
     // Operators //
-    friend std::ostream& operator<<(std::ostream&, const Game&);
+    friend std::ostream &operator<<(std::ostream &, const Game &);
     // friend std::istream& operator>>(std::istream&, Game&);
-
 
     // Methods //
 
@@ -898,7 +912,8 @@ public:
 
 // Game Getters //
 
-const int Game::getID() const {
+const int Game::getID() const
+{
     return game_ID;
 }
 
@@ -939,7 +954,8 @@ Game &Game::operator=(const Game &game)
 
 // Operators //
 
-std::ostream& operator<<(std::ostream& os, const Game& game) {
+std::ostream &operator<<(std::ostream &os, const Game &game)
+{
     os << "The current game has the ID: " << game.getID() << "\n";
 
     return os;
@@ -947,17 +963,19 @@ std::ostream& operator<<(std::ostream& os, const Game& game) {
 
 // Methods //
 
-bool Game::gameOver() {
+bool Game::gameOver()
+{
     if (player.getMana() <= 0 || boss.getHP() <= 0 || player.checkIfCanCast() == false)
         return true;
-    
+
     return false;
 }
 
-void Game::gameStateCheck() {
+void Game::gameStateCheck()
+{
     if (boss.getHP() <= 0 && player.getMana() > 0)
         std::cout << "You won!\n";
-    else 
+    else
         std::cout << "You lost...\n";
 }
 
@@ -1022,12 +1040,16 @@ void Game::setup_Menu()
 
 void Game::battle()
 {
+    bool checked = false;
+
     while (turn_Number < 10)
     {
         clearScreen();
 
-        if (gameOver()) {
+        if (gameOver())
+        {
             gameStateCheck();
+            checked = true;
             break;
         }
 
@@ -1090,47 +1112,58 @@ void Game::battle()
             switch (option)
             {
             case '1':
-            {   
-                if (player.getSpells(0).getCost() > player.getMana()) {
+            {
+                if (player.getSpells(0).getCost() > player.getMana())
+                {
                     std::cout << "You don't have enough mana left to cast this!\n";
-                } else {
+                }
+                else
+                {
                     std::cout << "Spell 1 chosen\n";
-                    
+
                     player.consumeMana(player.getSpells(0));
                     boss.checkSpellInteraction(player, player.getSpells(0), turn_Number);
                     boss.applyDamage(player.getSpells(0).calculateDamage(player));
-                    
+
                     chosen = true;
-                    break;
                 }
+                break;
             }
             case '2':
-            {   if (player.getSpells(1).getCost() > player.getMana()) {
+            {
+                if (player.getSpells(1).getCost() > player.getMana())
+                {
                     std::cout << "You don't have enough mana left to cast this!\n";
-                } else {
+                }
+                else
+                {
                     std::cout << "Spell 2 chosen\n";
-                    
+
                     player.consumeMana(player.getSpells(1));
                     boss.checkSpellInteraction(player, player.getSpells(1), turn_Number);
                     boss.applyDamage(player.getSpells(1).calculateDamage(player));
-                
+
                     chosen = true;
-                    break;
                 }
+                break;
             }
             case '3':
-            {   if (player.getSpells(2).getCost() > player.getMana()) {
+            {
+                if (player.getSpells(2).getCost() > player.getMana())
+                {
                     std::cout << "You don't have enough mana left to cast this!\n";
-                } else {
+                }
+                else
+                {
                     std::cout << "Spell 3 chosen\n";
-                
+
                     player.consumeMana(player.getSpells(2));
                     boss.checkSpellInteraction(player, player.getSpells(2), turn_Number);
                     boss.applyDamage(player.getSpells(2).calculateDamage(player));
-            
+
                     chosen = true;
-                    break;
-            }
+                }
+                break;
             }
             default:
             {
@@ -1140,19 +1173,17 @@ void Game::battle()
             }
         }
 
-        std::cout << "Press anything to continue or [Q] to quit\n";
+        std::cout << "Press Enter to continue or [Q] to quit\n";
 
-        char buf;
-
-        std::cin >> buf;
-
-        if (buf == 'Q')
+        if (std::cin.peek() == 'Q')
             break;
 
         std::cin.ignore(1000, '\n');
 
         turn_Number++;
     }
+    if (checked == false)
+        gameStateCheck();
 }
 
 void Game::run()
@@ -1205,7 +1236,8 @@ void Game::run()
         case '4':
         {
             clearScreen();
-            if (player.getNrSpells() == 3) {
+            if (player.getNrSpells() == 3)
+            {
                 battle();
                 running = false;
             }
