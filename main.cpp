@@ -234,6 +234,7 @@ public:
     void upgradeStats();
     void consumeMana(const Spell&);
     void calculateMana();
+    bool checkIfCanCast();
 
     // operators
     friend std::ostream &operator<<(std::ostream &, const Player &);
@@ -360,6 +361,17 @@ const Spell& Player::getSpells(const int &idx) const
 }
 
 // Player methods //
+
+bool Player::checkIfCanCast() {
+    if (getMana() >= getSpells(0).getCost())
+        return true;
+    if (getMana() >= getSpells(1).getCost())
+        return true;
+    if (getMana() >= getSpells(2).getCost())
+        return true;
+
+    return false;
+}
 
 void Player::consumeMana(const Spell& spell) {
     mana -= spell.getCost();
@@ -877,6 +889,8 @@ public:
     void run();
     void setup_Menu();
     void battle();
+    bool gameOver();
+    void gameStateCheck();
 
     // Getters //
     const int getID() const;
@@ -932,6 +946,20 @@ std::ostream& operator<<(std::ostream& os, const Game& game) {
 }
 
 // Methods //
+
+bool Game::gameOver() {
+    if (player.getMana() <= 0 || boss.getHP() <= 0 || player.checkIfCanCast() == false)
+        return true;
+    
+    return false;
+}
+
+void Game::gameStateCheck() {
+    if (boss.getHP() <= 0 && player.getMana() > 0)
+        std::cout << "You won!\n";
+    else 
+        std::cout << "You lost...\n";
+}
 
 void Game::setup_Menu()
 {
@@ -998,6 +1026,11 @@ void Game::battle()
     {
         clearScreen();
 
+        if (gameOver()) {
+            gameStateCheck();
+            break;
+        }
+
         std::cout << "Turn # " << turn_Number + 1 << "\n";
 
         std::cout << boss.getName() << " HP: " << boss.getHP() << "\n";
@@ -1057,31 +1090,47 @@ void Game::battle()
             switch (option)
             {
             case '1':
-            {
-                std::cout << "Spell 1 chosen\n";
-                player.consumeMana(player.getSpells(0));
-                boss.checkSpellInteraction(player, player.getSpells(0), turn_Number);
-                boss.applyDamage(player.getSpells(0).calculateDamage(player));
-                chosen = true;
-                break;
+            {   
+                if (player.getSpells(0).getCost() > player.getMana()) {
+                    std::cout << "You don't have enough mana left to cast this!\n";
+                } else {
+                    std::cout << "Spell 1 chosen\n";
+                    
+                    player.consumeMana(player.getSpells(0));
+                    boss.checkSpellInteraction(player, player.getSpells(0), turn_Number);
+                    boss.applyDamage(player.getSpells(0).calculateDamage(player));
+                    
+                    chosen = true;
+                    break;
+                }
             }
             case '2':
-            {
-                std::cout << "Spell 2 chosen\n";
-                player.consumeMana(player.getSpells(1));
-                boss.checkSpellInteraction(player, player.getSpells(1), turn_Number);
-                boss.applyDamage(player.getSpells(1).calculateDamage(player));
-                chosen = true;
-                break;
+            {   if (player.getSpells(1).getCost() > player.getMana()) {
+                    std::cout << "You don't have enough mana left to cast this!\n";
+                } else {
+                    std::cout << "Spell 2 chosen\n";
+                    
+                    player.consumeMana(player.getSpells(1));
+                    boss.checkSpellInteraction(player, player.getSpells(1), turn_Number);
+                    boss.applyDamage(player.getSpells(1).calculateDamage(player));
+                
+                    chosen = true;
+                    break;
+                }
             }
             case '3':
-            {
-                std::cout << "Spell 3 chosen\n";
-                player.consumeMana(player.getSpells(2));
-                boss.checkSpellInteraction(player, player.getSpells(2), turn_Number);
-                boss.applyDamage(player.getSpells(2).calculateDamage(player));
-                chosen = true;
-                break;
+            {   if (player.getSpells(2).getCost() > player.getMana()) {
+                    std::cout << "You don't have enough mana left to cast this!\n";
+                } else {
+                    std::cout << "Spell 3 chosen\n";
+                
+                    player.consumeMana(player.getSpells(2));
+                    boss.checkSpellInteraction(player, player.getSpells(2), turn_Number);
+                    boss.applyDamage(player.getSpells(2).calculateDamage(player));
+            
+                    chosen = true;
+                    break;
+            }
             }
             default:
             {
