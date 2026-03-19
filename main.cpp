@@ -245,7 +245,7 @@ public:
 
 Player::Player() : max_Spells(3)
 {
-    name = strcpy(new char[6], "Player");
+    name = strcpy(new char[strlen("Player") + 1], "Player");
     intelligence = 10;
     focus = 8;
 
@@ -1205,8 +1205,6 @@ void Game::run()
     char option;
 
     bool running = true;
-
-    std::cout << "----------RPG-SpellMaker----------\n";
 
     while (running)
     {
