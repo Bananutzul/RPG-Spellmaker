@@ -26,7 +26,6 @@ private:
     double mana_Cost;
     bool can_crit;
     bool has_been_chosen;
-
 public:
     // constructors
     Spell();
@@ -208,6 +207,8 @@ private:
     int upgrade_points;
     const int max_Spells;
     int nrSpells;
+    const int playerID;
+    static int noPlayers;
 
 public:
     // constructors
@@ -241,9 +242,11 @@ public:
     friend std::istream &operator>>(std::istream &, Player &);
 };
 
+int Player::noPlayers = 0;
+
 // Player constructors //
 
-Player::Player() : max_Spells(3)
+Player::Player() : max_Spells(3), playerID(++noPlayers)
 {
     name = strcpy(new char[strlen("Player") + 1], "Player");
     intelligence = 10;
@@ -256,7 +259,7 @@ Player::Player() : max_Spells(3)
     spells = new Spell[max_Spells];
 }
 
-Player::Player(const char *name) : max_Spells(3)
+Player::Player(const char *name) : max_Spells(3), playerID(++noPlayers)
 {
     this->name = strcpy(new char[strlen(name) + 1], name);
     intelligence = 10;
@@ -269,7 +272,7 @@ Player::Player(const char *name) : max_Spells(3)
     spells = new Spell[max_Spells];
 }
 
-Player::Player(const Player &player) : max_Spells(3)
+Player::Player(const Player &player) : max_Spells(3), playerID(++noPlayers)
 {
     name = strcpy(new char[strlen(player.name) + 1], player.name);
     intelligence = player.intelligence;
@@ -526,7 +529,7 @@ void Player::upgradeStats()
             }
             char option;
 
-            clearScreen();
+            // clearScreen();
 
             std::cout << "\nYou currently have " << upgrade_points << " points left.\n";
             std::cout << "Choose which stat you would like to upgrade: Intelligence[I]/Focus[F]/Quit[Q]\n";
@@ -538,6 +541,12 @@ void Player::upgradeStats()
             switch (option)
             {
             case 'Q':
+            {
+                clearScreen();
+                running = false;
+                break;
+            }
+            case 'q':
             {
                 clearScreen();
                 running = false;
@@ -665,6 +674,7 @@ private:
     char *possibleAttacks;
     char *attackList;
     const int nrAttacks;
+    static int noBosses;
 
 public:
     // Constructors
@@ -693,6 +703,9 @@ public:
     void checkSpellInteraction(Player &player, const Spell &, int); // function that modifies the boss's defense based on spell chosen / attack countered
 };
 
+int Boss::noBosses = 0;
+
+
 // Boss constructors //
 
 Boss::Boss() : boss_ID(time(nullptr)), nrAttacks(10)
@@ -708,7 +721,7 @@ Boss::Boss() : boss_ID(time(nullptr)), nrAttacks(10)
     attackList[nrAttacks] = '\0';
 }
 
-Boss::Boss(const char *name) : boss_ID(time(nullptr)), nrAttacks(10)
+Boss::Boss(const char *name) : boss_ID(++noBosses), nrAttacks(10)
 {
     this->name = strcpy(new char[strlen(name) + 1], name);
     hp = 500;
@@ -721,7 +734,7 @@ Boss::Boss(const char *name) : boss_ID(time(nullptr)), nrAttacks(10)
     attackList[nrAttacks] = '\0';
 }
 
-Boss::Boss(const Boss &boss) : boss_ID(time(nullptr)), nrAttacks(10)
+Boss::Boss(const Boss &boss) : boss_ID(++noBosses), nrAttacks(10)
 {
     name = strcpy(new char[strlen(boss.name) + 1], boss.name);
     hp = boss.hp;
@@ -886,6 +899,7 @@ private:
     Boss boss;
     bool gameWon;
     int turn_Number;
+    static int noGames;
 
 public:
     // Constructors / operator = //
@@ -911,6 +925,8 @@ public:
     const Player& getPlayer() const;
 };
 
+int Game::noGames = 0;
+
 // Game Getters //
 
 const int Game::getID() const
@@ -924,19 +940,19 @@ const Player& Game::getPlayer() const {
 
 // Game constructors //
 
-Game::Game() : game_ID(time(nullptr))
+Game::Game() : game_ID(++noGames)
 {
     gameWon = false;
     turn_Number = 0;
 }
 
-Game::Game(const char *player_name, const char *boss_name) : game_ID(time(nullptr)), player(player_name), boss(boss_name)
+Game::Game(const char *player_name, const char *boss_name) : game_ID(++noGames), player(player_name), boss(boss_name)
 {
     gameWon = false;
     turn_Number = 0;
 }
 
-Game::Game(const Game &game) : game_ID(time(nullptr))
+Game::Game(const Game &game) : game_ID(++noGames)
 {
     player = game.player;
     boss = game.boss;
