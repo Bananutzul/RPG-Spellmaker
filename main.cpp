@@ -708,7 +708,7 @@ int Boss::noBosses = 0;
 
 // Boss constructors //
 
-Boss::Boss() : boss_ID(time(nullptr)), nrAttacks(10)
+Boss::Boss() : boss_ID(++noBosses), nrAttacks(10)
 {
     name = strcpy(new char[strlen("The Lich") + 1], "The Lich");
     hp = 500;
